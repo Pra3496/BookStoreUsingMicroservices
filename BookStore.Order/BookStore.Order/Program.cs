@@ -19,7 +19,9 @@ namespace BookStore.Order
 
             builder.Services.AddControllers();
 
-            builder.Services.AddTransient<IOrderRepository, OrderRepository>();    
+            builder.Services.AddTransient<IOrderRepository, OrderRepository>();
+            builder.Services.AddTransient<IBookService, BookService>();
+            builder.Services.AddTransient<IUserService, UserService>();
 
             //Migration
             builder.Services.AddDbContext<ContextDB>(ops =>
@@ -30,7 +32,7 @@ namespace BookStore.Order
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
 
-
+            builder.Services.AddHttpClient();
 
             //Swagger Authorization
             builder.Services.AddSwaggerGen(option =>
@@ -77,6 +79,23 @@ namespace BookStore.Order
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"]))
                 };
             });
+
+            //IHttpClient Factory for Books
+            var messagingBookUrl = builder.Configuration["BookBaseUrl"];
+
+            builder.Services.AddHttpClient("BookApi", bookClient =>
+            {
+                bookClient.BaseAddress = new Uri(messagingBookUrl);
+            });
+
+            //IHttpClient Factory for User
+            var messagingUserUrl = builder.Configuration["UserBaseUrl"];
+            builder.Services.AddHttpClient("UserApi", userClient =>
+            {
+                userClient.BaseAddress = new Uri(messagingUserUrl);
+            });
+
+
 
             var app = builder.Build();
 

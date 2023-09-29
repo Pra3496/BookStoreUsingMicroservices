@@ -1,54 +1,59 @@
-﻿using BookStore.Order.Repository.Model;
+﻿using BookStore.Order.Repository.Interface;
+using BookStore.Order.Repository.Model;
 using Newtonsoft.Json;
+using System.Net.Http;
 using System.Text.Json.Serialization;
 
 namespace BookStore.Order.Repository.Service
 {
-    public class BookService
+    public class BookService : IBookService
     {
 
+        private readonly HttpClient _httpMessingClient;
+        public BookService(IHttpClientFactory httpClientFactory)
+        {
+            _httpMessingClient = httpClientFactory.CreateClient("BookApi");//A method CreateClient which return the http client Object
+        }
 
+
+        /// <summary>
+        /// This Method is Used to Retrive Book information from User Api using HttpClient.
+        /// </summary>
+        /// <param name="bookId">Its is used to pass as parameter in URL</param>
+        /// <returns>Object of BookEntity</returns>
         public async Task<BookEntity>GetBookByIdFromApi(long bookId)
         {
-
-            if(bookId == null)
+            try
             {
-                return null;
-            }
-
-            BookEntity book = new BookEntity(); 
-
-            string url = "https://localhost:7049/api/Book/bookById";
-
-            string bookIduri = bookId.ToString();
-            
-
-            var fullUrl = $"{url}?bookId={Uri.EscapeDataString(bookIduri)}";
-
-
-            HttpClient client = new();
-
-            HttpResponseMessage responceFromApi = await client.GetAsync(fullUrl);
-
-            if(responceFromApi.IsSuccessStatusCode)
-            {
-                string content = await responceFromApi.Content.ReadAsStringAsync(); 
-
-                ResponseEntity response = JsonConvert.DeserializeObject<ResponseEntity>(content);
-
-                if(response.isSuccess)
+                if (bookId == null)
                 {
-                    string bookContent = JsonConvert.SerializeObject(response.data);
-
-                    book = JsonConvert.DeserializeObject<BookEntity>(bookContent);
-
-
+                    return null;
                 }
 
-                return book;
+                BookEntity bookEntity = new BookEntity();
+                //IHttpFactory
+                HttpResponseMessage responseMessage = await _httpMessingClient.GetAsync($"?bookId={bookId}");
+                if (responseMessage.IsSuccessStatusCode)
+                {
+                    string content = await responseMessage.Content.ReadAsStringAsync();
+
+                    ResponceModel response = JsonConvert.DeserializeObject<ResponceModel>(content);
+
+                    if (response.IsSuccess)
+                    {
+                        bookEntity = JsonConvert.DeserializeObject<BookEntity>(response.Data.ToString());
+                    }
+                }
+                return bookEntity;
+
+
+            }
+            catch (Exception ex) 
+            {
+                throw new Exception(ex.Message);
             }
 
-            return null;
+           
 
         }
 

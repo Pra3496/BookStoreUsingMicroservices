@@ -34,7 +34,7 @@ namespace BookStore.Order.Controllers
             {
                 long userId = long.Parse(User.FindFirst("UserID").Value);
 
-                if(userId == null)
+                if (userId == null)
                 {
                     response.IsSuccess = false;
                     response.Message = "Authorization is Unsuccessful";

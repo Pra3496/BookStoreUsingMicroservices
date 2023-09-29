@@ -6,20 +6,21 @@ namespace BookStore.Order.Repository.Service
 {
     public class OrderRepository : IOrderRepository
     {
-        private readonly IConfiguration Iconfiguration;
-
+       
         private readonly ContextDB contextDB;
 
-        private readonly BookService bookService;
+        private readonly IBookService bookService;
 
-        private readonly UserService userService;
+        private readonly IUserService userService;
 
-        public OrderRepository(IConfiguration Iconfiguration, ContextDB contextDB)
+
+        public OrderRepository(ContextDB contextDB, IUserService userService, IBookService bookService)
         {
-            this.Iconfiguration = Iconfiguration;
+
             this.contextDB = contextDB;
-            this.bookService = new BookService();
-            this.userService = new UserService();
+            this.bookService = bookService;
+            this.userService = userService;
+
         }
 
 
@@ -33,7 +34,6 @@ namespace BookStore.Order.Repository.Service
             try
             {
                 OrderEntity orderEntity = new OrderEntity();
-               
 
                 orderEntity.BookId = model.BookId;
                 orderEntity.UserId = model.UserId;

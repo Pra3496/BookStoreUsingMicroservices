@@ -1,49 +1,52 @@
-﻿using Newtonsoft.Json;
+﻿using BookStore.Order.Repository.Interface;
+using BookStore.Order.Repository.Model;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.Net;
+using System.Net.Http.Headers;
 
 namespace BookStore.Order.Repository.Service
 {
-    public class UserService
+    public class UserService : IUserService
     {
+
+        private readonly HttpClient httpClient;
+        public UserService(IHttpClientFactory httpClientFactory) 
+        {
+            httpClient = httpClientFactory.CreateClient("UserApi");
+        }
+
+        /// <summary>
+        /// This Method is Used to Retrive User information from User Api using HttpClient.
+        /// </summary>
+        /// <param name="userId">Its is used to pass as parameter in URL</param>
+        /// <returns>Object of User Entity</returns>
+        /// <exception cref="Exception"></exception>
         public async Task<UserEntity> GetUserByIdFromApi(long userId)
         {
 
-            if (userId == null)
+            try
             {
-                return null;
-            }
+                UserEntity userEntity = null;
 
-            UserEntity user = new UserEntity();
-
-            string url = "https://localhost:7207/api/User/user";
-
-            string userIduri = userId.ToString();
-
-
-            var fullUrl = $"{url}?userId={Uri.EscapeDataString(userIduri)}";
-
-            HttpClient client = new();
-
-            HttpResponseMessage responceFromApi = await client.GetAsync(fullUrl);
-
-            if (responceFromApi.IsSuccessStatusCode)
-            {
-                string content = await responceFromApi.Content.ReadAsStringAsync();
-
-                ResponseUserEntity response = JsonConvert.DeserializeObject<ResponseUserEntity>(content);
-
-                if (response.isSuccess)
+               
+                HttpResponseMessage responseMessage = await httpClient.GetAsync($"?userId={userId}");
+                if (responseMessage.IsSuccessStatusCode)
                 {
-                    string userContent = JsonConvert.SerializeObject(response.data);
+                    string content = await responseMessage.Content.ReadAsStringAsync();
+                    ResponceModel responseEntity = JsonConvert.DeserializeObject<ResponceModel>(content);
 
-                    user = JsonConvert.DeserializeObject<UserEntity>(userContent);
-
-
+                    if (responseEntity.IsSuccess)
+                    {
+                        userEntity = JsonConvert.DeserializeObject<UserEntity>(responseEntity.Data.ToString());
+                    }
                 }
-
-                return user;
+                return userEntity;
             }
-
-            return null;
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
 
         }
     }
