@@ -53,12 +53,7 @@ namespace BookStore.Order.Repository.Service
                 throw new Exception(ex.Message);
             }
 
-           
-
         }
-
-
-
 
     }
 }
