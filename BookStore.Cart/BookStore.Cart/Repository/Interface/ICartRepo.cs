@@ -13,5 +13,7 @@ namespace BookStore.Cart.Repository.Interface
 
         Task<IEnumerable<CartEntity>> GetAllCartWhichOrder(long userId);
 
+        Task<bool> UpdateAllCartWhichOrdered(long userId);
+
     }
 }

@@ -27,12 +27,18 @@ namespace BookStore.Order.Controllers
         /// <returns>Responce model with Message and object of order</returns>
         [Authorize]
         [HttpPost]
-        public async Task<ResponceModel> AddOrder(OrderModel model)
+        public async Task<ResponceModel> AddOrder()
         {
             
             try
             {
+                OrderModel model = new();
+
                 long userId = long.Parse(User.FindFirst("UserID").Value);
+                string token = Request.Headers.Authorization.ToString();
+
+                model.UserId = userId;
+
 
                 if (userId == null)
                 {
@@ -42,7 +48,7 @@ namespace BookStore.Order.Controllers
                 else
                 {
                     model.UserId = userId;
-                    var result = await orderRepository.AddOrder(model);
+                    var result = await orderRepository.AddOrder(model, token);
                     
                     if (result != null)
                     {
@@ -62,18 +68,48 @@ namespace BookStore.Order.Controllers
             }
         }
 
-      
+
+        [HttpGet]
+        public async Task<ResponceModel> GetAllOrders()
+        {
+            try
+            {
+                long userId = long.Parse(User.FindFirst("UserID").Value);
+
+                var result = await orderRepository.GetAllOrders();
+
+                if (result != null)
+                {
+                    response.Data = result;
+
+                }
+                else
+                {
+                    response.IsSuccess = false;
+                    response.Message = "Orders Retrive is Unsuccessful";
+                }
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+
+        }
 
         /// <summary>
         /// This Method is used to Retrive All orders
         /// </summary>
         /// <returns>List of Order</returns>
-        [HttpGet]
-        public async Task<ResponceModel> GetOrders()
+        [HttpGet("user-orders")]
+        public async Task<ResponceModel> GetOrdersUserPlacesed()
         {
             try
             {
-                var result = await orderRepository.GetAllOrders();
+                long userId = long.Parse(User.FindFirst("UserID").Value);
+
+                var result = await orderRepository.GetAllOrdersItemsUserPlacesed(userId);
 
                 if (result != null)
                 {
@@ -89,6 +125,36 @@ namespace BookStore.Order.Controllers
                 return response;
             }
             catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+
+        }
+
+
+        [HttpPost("PlaceOrder")]
+        
+        public async Task<ResponceModel> PlaceOrder(long OrderId)
+        {
+            try
+            {
+                string token = Request.Headers.Authorization.ToString();
+                var result = await orderRepository.PlaceOrder(OrderId, token);
+
+                if (result != null)
+                {
+                    response.Data = result;
+
+                }
+                else
+                {
+                    response.IsSuccess = false;
+                    response.Message = "Order Placed is Unsuccessful";
+                }
+
+                return response;
+            }
+            catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }

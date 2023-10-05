@@ -101,6 +101,30 @@ namespace BookStore.Cart.Repository.Service
             }
         }
 
+        public async Task<bool> UpdateAllCartWhichOrdered(long userId)
+        {
+            try
+            {
+                List<CartEntity> CartOrders = await context.Carts.Where(x => x.UserId == userId).ToListAsync();
+
+                if (CartOrders != null)
+                {
+                    foreach (CartEntity cart in CartOrders)
+                    {
+                        cart.IsPurchesed = true;
+                        context.Carts.Update(cart);
+                        await context.SaveChangesAsync();
+                    }
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
 
     }
 }

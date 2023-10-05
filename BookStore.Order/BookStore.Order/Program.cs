@@ -23,6 +23,8 @@ namespace BookStore.Order
             builder.Services.AddTransient<IBookService, BookService>();
             builder.Services.AddTransient<IUserService, UserService>();
 
+            builder.Services.AddTransient<ICartService, CartService>();
+
             //Migration
             builder.Services.AddDbContext<ContextDB>(ops =>
             {
@@ -93,6 +95,13 @@ namespace BookStore.Order
             builder.Services.AddHttpClient("UserApi", userClient =>
             {
                 userClient.BaseAddress = new Uri(messagingUserUrl);
+            });
+
+            //IHttpClient Factory for Cart
+            var messagingCartUrl = builder.Configuration["CartBaseUrl"];
+            builder.Services.AddHttpClient("CartApi", userClient =>
+            {
+                userClient.BaseAddress = new Uri(messagingCartUrl);
             });
 
 

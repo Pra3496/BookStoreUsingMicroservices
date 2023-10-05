@@ -9,14 +9,15 @@ namespace BookStore.Order.Repository
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long OrderId { get; set; }
 
-        public long BookId { get; set; }
-
         public long UserId { get; set; }
 
-        public int Quantity { get; set; }
+        public float GrandTotal { get; set; }
+
+        public bool IsPaid { get; set; }
+
 
         [NotMapped]
-        public BookEntity book { get; set; }
+        public List<BookEntity> books{ get; set; }
 
         [NotMapped]
         public UserEntity user {get; set;}

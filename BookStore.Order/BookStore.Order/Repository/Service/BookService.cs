@@ -12,7 +12,7 @@ namespace BookStore.Order.Repository.Service
         private readonly HttpClient _httpMessingClient;
         public BookService(IHttpClientFactory httpClientFactory)
         {
-            _httpMessingClient = httpClientFactory.CreateClient("BookApi");//A method CreateClient which return the http client Object
+            _httpMessingClient = httpClientFactory.CreateClient("BookApi");      //A method CreateClient which return the http client Object
         }
 
 

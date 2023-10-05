@@ -72,6 +72,8 @@ namespace BookStore.Cart.Controllers
             }
         }
 
+		[HttpGet]
+		[Route("orders")]
         public async Task<IActionResult> GetAllCartWhichOrder()
         {
             try
@@ -108,6 +110,31 @@ namespace BookStore.Cart.Controllers
                     responseModel.IsSuccess = true;
                     responseModel.Message = "Delete Cart Successful";
                     
+                }
+                return responseModel;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        [HttpPatch]
+        public async Task<ResponseModel> UpdateCartItemOrdered()
+        {
+            try
+            {
+                ResponseModel responseModel = new ResponseModel();
+
+                long userId = long.Parse(User.FindFirst("UserID").Value);
+
+                bool result = await this.cartRepo.UpdateAllCartWhichOrdered(userId);
+
+                if (result != false)
+                {
+                    responseModel.IsSuccess = true;
+                    responseModel.Message = "Update Cart Successful";
+
                 }
                 return responseModel;
             }
